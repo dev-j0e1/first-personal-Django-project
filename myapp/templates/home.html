@@ -12,7 +12,7 @@
       <p class="lead">A secure login flow application built with Django and Bootstrap</p>
       {% if user.is_authenticated %}
         <p class="mt-3">
-          <span class="badge badge-success">Logged in as:<span class="username-highlight">{{ user.username }}</span></span>
+          <span class="badge badge-success" style="padding: 10px;">Logged in as:<span class="username-highlight">{{ user.username }}</span></span>
         </p>
       {% else %}
         <a class="btn btn-light btn-lg mt-3" href="{% url 'login' %}" role="button">Login Now</a>
