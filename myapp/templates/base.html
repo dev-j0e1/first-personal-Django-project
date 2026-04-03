@@ -44,11 +44,44 @@
         color: rgba(255, 255, 255, 0.8) !important;
         transition: all 0.3s ease;
         font-weight: 500;
+        position: relative;
       }
 
       .nav-link:hover {
         color: white !important;
         text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      }
+
+      .nav-item.active .nav-link,
+      .nav-link.active {
+        color: #fff !important;
+        font-weight: 700;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        animation: navActiveGlow 1.6s ease-in-out infinite;
+      }
+
+      .nav-item.active .nav-link::after,
+      .nav-link.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #59d7ff, #4cb0ff, #2e76ff, #69b7ff);
+        border-radius: 5px;
+        animation: navActiveBar 1.8s ease-in-out infinite;
+      }
+
+      @keyframes navActiveGlow {
+        0% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+        50% { text-shadow: 0 0 18px rgba(255, 255, 255, 0.9); }
+        100% { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4); }
+      }
+
+      @keyframes navActiveBar {
+        0%, 100% { transform: translateX(0); opacity: 0.75; }
+        50% { transform: translateX(4px); opacity: 1; }
       }
 
       .nav-link.user-status {
@@ -182,6 +215,24 @@
         font-size: 1rem;
       }
 
+      .status-auth {
+        background: linear-gradient(120deg, #2fd76e 0%, #0ba162 100%);
+        color: #ffffff;
+        border: 1px solid rgba(56, 175, 112, 0.7);
+        box-shadow: 0 0 10px rgba(39, 215, 134, 0.45);
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+
+      .status-unauth {
+        background: rgba(180, 180, 180, 0.18);
+        color: #6f6f6f;
+        border: 1px solid rgba(160, 160, 160, 0.35);
+        box-shadow: none;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
       .card {
         border: 1px solid rgba(140, 175, 230, 0.25);
         background: rgba(255, 255, 255, 0.93);
@@ -190,6 +241,25 @@
 
       .card-title {
         text-shadow: 0 1px 6px rgba(18, 42, 77, 0.26);
+      }
+
+      .cards-row > [class*="col-"] {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .cards-row .card {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cards-row .card .card-body {
+        flex: 1;
+      }
+
+      .cards-row .card .card-text {
+        min-height: 1px;
       }
 
       .btn-primary {
@@ -404,13 +474,13 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto" style="margin-left: 1.2rem;">
-          <li class="nav-item active">
+          <li class="nav-item{% if active_page == 'home' %} active{% endif %}">
             <a class="nav-link" href="{% url 'home' %}">Home</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item{% if active_page == 'about' %} active{% endif %}">
             <a class="nav-link" href="{% url 'about' %}">About</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item{% if active_page == 'contact' %} active{% endif %}">
             <a class="nav-link" href="{% url 'contact' %}">Contact</a>
           </li>
         </ul>

@@ -42,7 +42,12 @@
                 required
               >
             </div>
-            
+
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" id="id_remember" name="remember_me">
+              <label class="form-check-label" for="id_remember">Remember me</label>
+            </div>
+
             <button type="submit" class="btn btn-primary btn-block">Login</button>
           </form>
         </div>
@@ -53,4 +58,31 @@
       </p>
     </div>
   </div>
+
+  <script>
+    (function () {
+      const emailInput = document.getElementById('id_email');
+      const rememberCheckbox = document.getElementById('id_remember');
+      const loginForm = document.querySelector('form');
+      const STORAGE_KEY = 'remembered_email';
+
+      // Initialize saved value
+      const savedEmail = localStorage.getItem(STORAGE_KEY);
+      if (savedEmail) {
+        emailInput.value = savedEmail;
+        rememberCheckbox.checked = true;
+      }
+
+      // Form submit handling
+      loginForm.addEventListener('submit', function (event) {
+        const emailValue = emailInput.value.trim();
+
+        if (rememberCheckbox.checked && emailValue) {
+          localStorage.setItem(STORAGE_KEY, emailValue);
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      });
+    })();
+  </script>
 {% endblock %}

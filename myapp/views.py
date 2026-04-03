@@ -4,17 +4,17 @@ from django.contrib import messages
 
 
 def home(request):
-    return render(request, "home.html")
+    return render(request, "home.html", {"active_page": "home"})
 
 
 def about(request):
     """Render the about page."""
-    return render(request, "about.html")
+    return render(request, "about.html", {"active_page": "about"})
 
 
 def contact(request):
     """Render the contact page."""
-    return render(request, "contact.html")
+    return render(request, "contact.html", {"active_page": "contact"})
 
 
 def login_view(request):
@@ -33,7 +33,7 @@ def login_view(request):
         else:
             messages.error(request, "Invalid email or password. Please try again.")
 
-    return render(request, "login.html")
+    return render(request, "login.html", {"active_page": "login"})
 
 
 def logout_view(request):
