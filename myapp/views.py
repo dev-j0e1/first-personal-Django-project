@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 
 
@@ -26,7 +27,9 @@ def login_view(request):
         UserModel = get_user_model()
         user = UserModel.objects.filter(email__iexact=email).first()
 
-        if user and user.check_password(password):
+        if user and check_password(password, user.password):
+            # user.password is stored as a secure hash (PBKDF2 by default in Django)
+            # the plain text password never gets stored in the DB.
             login(request, user)
             messages.success(request, "login successful, welcome John Doe")
             return redirect("home")
