@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib import messages
 
 
@@ -9,23 +8,21 @@ def home(request):
 
 
 def login_view(request):
-    """Handle user login with form validation and authentication."""
+    """Handle user login with form validation and authentication by email."""
     if request.method == "POST":
-        username = request.POST.get("username", "")
+        email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "")
-        
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            # Authentication successful
+
+        UserModel = get_user_model()
+        user = UserModel.objects.filter(email__iexact=email).first()
+
+        if user and user.check_password(password):
             login(request, user)
-            messages.success(request, f"Welcome back, {user.username}!")
+            messages.success(request, "login successful, welcome John Doe")
             return redirect("home")
         else:
-            # Authentication failed
-            messages.error(request, "Invalid username or password. Please try again.")
-    
+            messages.error(request, "Invalid email or password. Please try again.")
+
     return render(request, "login.html")
 
 
