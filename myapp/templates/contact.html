@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Contact - Django App
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">Contact</h1>
+        
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Get In Touch</h5>
+            <p class="card-text">
+              Feel free to reach out through any of the channels below. I'd love to hear from you!
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h5 class="card-title">Email</h5>
+                <p class="card-text">
+                  <a href="mailto:joelclarke496@gmail.com" class="btn btn-outline-primary">
+                    joelclarke496@gmail.com
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <h5 class="card-title">Instagram</h5>
+                <p class="card-text">
+                  <a href="https://instagram.com/j0e1.dev" target="_blank" class="btn btn-outline-danger">
+                    @j0e1.dev
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Other Ways to Connect</h5>
+            <ul>
+              <li>Send an email to <strong>joelclarke496@gmail.com</strong></li>
+              <li>Follow me on Instagram <strong>@j0e1.dev</strong> for updates and projects</li>
+              <li>Use the contact form above to send a quick message</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -9,36 +9,272 @@
       {% endblock %}
     </title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"  rel="stylesheet" />
+    <style>
+      :root {
+        --primary-blue: #1e3a5f;
+        --secondary-blue: #2c5aa0;
+        --accent-blue: #3b7ec1;
+        --light-blue: #e8f0f8;
+        --border-radius: 0.5rem;
+        --the-green:  #d4edda;
+      }
+
+      body {
+        background-color: #f8fbff;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      /* Navbar styling */
+      .navbar {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+        box-shadow: 0 2px 8px rgba(30, 58, 95, 0.15);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .navbar-brand {
+        font-weight: 600;
+        color: white !important;
+        font-size: 1.3rem;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.8) !important;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .nav-link:hover {
+        color: white !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+      }
+
+      .nav-link.user-status {
+        background: rgba(76, 175, 80, 0.2);
+        color: #81c784 !important;
+        border-radius: var(--border-radius);
+        padding: 0.5rem 1rem !important;
+        display: inline-block;
+        font-weight: 600;
+        border: 1px solid rgba(76, 175, 80, 0.4);
+      }
+
+      /* Cards */
+      .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: 0 2px 12px rgba(30, 58, 95, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 20px rgba(30, 58, 95, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        font-weight: 600;
+      }
+
+      .card-body {
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+      }
+
+      /* Buttons */
+      .btn-primary {
+        background-color: var(--secondary-blue);
+        border-color: var(--secondary-blue);
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+        box-shadow: 0 4px 12px rgba(30, 58, 95, 0.25);
+      }
+
+      .btn-outline-primary {
+        color: var(--secondary-blue);
+        border-color: var(--secondary-blue);
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline-primary:hover {
+        background-color: var(--secondary-blue);
+        border-color: var(--secondary-blue);
+        color: white;
+      }
+
+      .btn-outline-danger {
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline-danger:hover {
+        transform: scale(1.05);
+      }
+
+      .btn-light {
+        border-radius: var(--border-radius);
+        font-weight: 500;
+      }
+
+      /* Jumbotron */
+      .jumbotron {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%) !important;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 15px rgba(30, 58, 95, 0.2);
+        margin-bottom: 2rem;
+      }
+
+      .jumbotron h1 {
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+
+      .jumbotron .lead {
+        font-size: 1.15rem;
+        font-weight: 300;
+        opacity: 0.95;
+      }
+
+      /* Alerts */
+      .alert {
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+      }
+
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+      }
+
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+      }
+
+      .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+      }
+
+      .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+      }
+
+      /* Badge */
+      .badge {
+        border-radius: var(--border-radius);
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .badge-success {
+        background-color: var(--secondary-blue);
+      }
+
+      .badge-success .username-highlight {
+        background: rgba(76, 175, 80, 0.3);
+        color: #81c784;
+        padding: 0.2rem 0.5rem;
+        border-radius: calc(var(--border-radius) / 2);
+        font-weight: 700;
+        margin-left: 0.3rem;
+      }
+
+      .badge-warning {
+        background-color: var(--accent-blue);
+        color: white;
+      }
+
+      /* Forms */
+      .form-control {
+        border-radius: var(--border-radius);
+        border: 1px solid #e0e7f1;
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 0.2rem rgba(59, 126, 193, 0.25);
+      }
+
+      .form-group label {
+        color: var(--primary-blue);
+        font-weight: 600;
+      }
+
+      /* Container and spacing */
+      .container {
+        border-radius: var(--border-radius);
+      }
+
+      /* Links */
+      a {
+        color: var(--secondary-blue);
+        transition: all 0.3s ease;
+      }
+
+      a:hover {
+        color: var(--primary-blue);
+        text-decoration: underline;
+      }
+
+      /* Page heading */
+      h1, h2, h3, h4, h5, h6 {
+        color: var(--primary-blue);
+        font-weight: 600;
+      }
+    </style>
 
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">Django login flow project</a>
+      <a class="navbar-brand" href="{% url 'home' %}">Django login flow project</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto" style="margin-left: 1.2rem;">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home</a>
+            <a class="nav-link" href="{% url 'home' %}">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
+            <a class="nav-link" href="{% url 'about' %}">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
+            <a class="nav-link" href="{% url 'contact' %}">Contact</a>
           </li>
         </ul>
 
         <ul class="navbar-nav ml-auto">
           {% if user.is_authenticated %}
             <li class="nav-item">
-              <span class="nav-link">Hi, {{ user.username }}!</span>
+              <span class="nav-link user-status">Hi, {{ user.username }}!</span>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'logout' %}">Logout</a>
             </li>
           {% else %}
             <li class="nav-item">
-              <a style="color: blue;" class="nav-link" href="{% url 'login' %}">Login</a>
+              <a class="nav-link" href="{% url 'login' %}">Login</a>
             </li>
           {% endif %}
         </ul>

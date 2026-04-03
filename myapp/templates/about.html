@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}
+  About - Django App
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">About Django App</h1>
+        
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Project Overview</h5>
+            <p class="card-text">
+              Django App is a demonstration project showcasing a secure, modern web application built with Django and Bootstrap.
+              It implements industry-standard authentication patterns with proper security practices.
+            </p>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Technologies Used</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Backend:</strong> Django 6.0.3</li>
+              <li class="list-group-item"><strong>Frontend:</strong> Bootstrap 4.3.1</li>
+              <li class="list-group-item"><strong>Database:</strong> SQLite</li>
+              <li class="list-group-item"><strong>Authentication:</strong> Django's built-in auth system with PBKDF2 hashing</li>
+              <li class="list-group-item"><strong>Language:</strong> Python 3.14</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Security Features</h5>
+            <ul>
+              <li>Email-based authentication with hashed passwords</li>
+              <li>CSRF protection on all forms</li>
+              <li>Session-based user authentication</li>
+              <li>Secure password validation using Django's default PBKDF2</li>
+              <li>HTTP-only session cookies</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-body">
+            <h5 class="card-title">Key Features</h5>
+            <ul>
+              <li>User login and logout functionality</li>
+              <li>Responsive design for all screen sizes</li>
+              <li>Message display system for user feedback</li>
+              <li>Navbar with dynamic user state display</li>
+              <li>Clean, intuitive user interface</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Getting Started</h5>
+            <p class="card-text">
+              To get started with this application, navigate to the <a href="{% url 'login' %}">Login page</a> 
+              to authenticate with your email and password. Once logged in, you'll have access to your user profile and can manage your session.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

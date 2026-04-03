@@ -7,6 +7,16 @@ def home(request):
     return render(request, "home.html")
 
 
+def about(request):
+    """Render the about page."""
+    return render(request, "about.html")
+
+
+def contact(request):
+    """Render the contact page."""
+    return render(request, "contact.html")
+
+
 def login_view(request):
     """Handle user login with form validation and authentication by email."""
     if request.method == "POST":
