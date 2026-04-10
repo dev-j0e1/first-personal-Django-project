@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<table>
+    <tr>
+        <th>Item</th>
+        <div>{{tasks}}</div>
+    </tr>
+    {% for todo in tasks %}
+    <tr>
+        <td>{{todo}}</td>
+    </tr>
+    {% empty %}
+        <h3>No items in list</h3>
+    {% endfor %}
+
+
+</table>
+
+
+
+
+
+
+{% endblock %}

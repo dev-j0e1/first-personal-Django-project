@@ -315,9 +315,6 @@
 
       /* Page heading */
 
-        transition: all 0.3s ease;
-      }
-
       .btn-outline-danger:hover {
         transform: scale(1.05);
       }
@@ -482,6 +479,9 @@
           </li>
           <li class="nav-item{% if active_page == 'contact' %} active{% endif %}">
             <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+          </li>
+          <li class="nav-item{% if active_page == 'todo' %} active{% endif %}">
+            <a class="nav-link" href="{% url 'todo' %}">Todo App</a>
           </li>
         </ul>
 
