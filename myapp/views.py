@@ -5,8 +5,12 @@ from django.contrib import messages
 from django.views.generic.list import ListView
 from .models import Task
 
+from django.contrib.auth.decorators import login_required
+
+
+@login_required(login_url="/myapp/login/")
 def todo(request):
-    tasks = Task.objects.all()  # get all tasks from DB
+    tasks = Task.objects.filter(user=request.user)  
     return render(request, "todo.html",{
         "active_page": "todo",
         "tasks": tasks
@@ -26,15 +30,13 @@ def contact(request):
     return render(request, "contact.html", {"active_page": "contact"})
 
 
-def todo(request):
-    return render(request, "todo.html", {"active_page": "todo"})
-
 
 def login_view(request):
     """Handle user login with form validation and authentication by email."""
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "")
+        next = request.GET.get("next")
 
         UserModel = get_user_model()
         user = UserModel.objects.filter(email__iexact=email).first()
@@ -44,6 +46,9 @@ def login_view(request):
             # the plain text password never gets stored in the DB.
             login(request, user)
             messages.success(request, "login successful, welcome John Doe")
+            if next:
+                return redirect(next)
+
             return redirect("home")
         else:
             messages.error(request, "Invalid email or password. Please try again.")
