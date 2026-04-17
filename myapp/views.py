@@ -10,10 +10,61 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url="/myapp/login/")
 def todo(request):
-    tasks = Task.objects.filter(user=request.user)  
-    return render(request, "todo.html",{
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+
+        if title:
+            Task.create_task(request.user, title, description)
+            return redirect("todo")
+
+    tasks = Task.objects.filter(user=request.user)
+    return render(request, "todo.html", {
         "active_page": "todo",
-        "tasks": tasks
+        "tasks": tasks,
+    })
+
+@login_required(login_url="/myapp/login/")
+def update_task(request, task_id):
+    try:
+        task = Task.objects.get(id=task_id, user=request.user)
+    except Task.DoesNotExist:
+        messages.error(request, "Task not found.")
+        return redirect("todo")
+
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        description = request.POST.get("description", "").strip()
+        complete = request.POST.get("complete") == "on"
+
+        if title:
+            task.update_task(title=title, description=description, complete=complete)
+            messages.success(request, "Task updated successfully.")
+            return redirect("todo")
+        else:
+            messages.error(request, "Title cannot be empty.")
+
+    return render(request, "edit_task.html", {
+        "task": task,
+        "active_page": "todo",
+    })
+
+@login_required(login_url="/myapp/login/")
+def delete_task(request, task_id):
+    try:
+        task = Task.objects.get(id=task_id, user=request.user)
+    except Task.DoesNotExist:
+        messages.error(request, "Task not found.")
+        return redirect("todo")
+
+    if request.method == "POST":
+        task.delete_task()
+        messages.success(request, "Task deleted successfully.")
+        return redirect("todo")
+
+    return render(request, "confirm_delete.html", {
+        "task": task,
+        "active_page": "todo",
     })
 
 def home(request):

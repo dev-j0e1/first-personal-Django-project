@@ -12,5 +12,30 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title 
+    
     class Meta:
-        ordering = ['complete']
+        ordering = ['-create']
+
+
+    def update_task(self, title=None, description=None, complete=None):
+        if title is not None:
+            self.title = title
+        if description is not None:
+            self.description = description
+        if complete is not None:
+            self.complete = complete
+        self.save()
+        return self
+
+    def delete_task(self):
+        self.delete()
+
+
+    @classmethod
+    def create_task(cls, user, title, description=None):
+        return cls.objects.create(
+            user = user,
+            title = title,
+            description = description or "",
+            complete = False,
+        )

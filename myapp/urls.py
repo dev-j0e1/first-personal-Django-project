@@ -11,5 +11,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("todo/", views.todo, name="todo"),
+    path("todo/<int:task_id>/update/", views.update_task, name="update_task"),
+    path("todo/<int:task_id>/delete/", views.delete_task, name="delete_task"),
     ]
 

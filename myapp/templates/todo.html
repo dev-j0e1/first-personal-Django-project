@@ -3,14 +3,122 @@
 
 {% block content %}
 
+<style>
+
+    th {
+        text-align: center;
+    }
+    td {
+        background: white;
+        border: 1px solid black;
+        padding: 10px;
+        text-align: center;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+    .modal.active {
+        display: block;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 8px;
+    }
+    .modal-close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .modal-close:hover {
+        color: black;
+    }
+    .modal-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .modal-buttons button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .btn-save {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .btn-delete {
+        background-color: #f44336;
+        color: white;
+    }
+    .btn-cancel {
+        background-color: #888;
+        color: white;
+    }
+    .edit-btn {
+        background-color: #2196F3;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<form method="post" action="{% url 'todo' %}" style="margin-bottom: 1.5rem;">
+    {% csrf_token %}
+    <div>
+        <label for="title">Title</label>
+        <input id="title" placeholder="What do I need to do?..." name="title" type="text" required maxlength="200" style="width: 100%;" />
+    </div>
+    <div style="margin-top: 0.5rem;">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Details about my Todo..." rows="3" style="width: 100%;"></textarea>
+    </div>
+    <button type="submit" style="border-radius: 25px;">Add Todo</button>
+</form>
+
 <table>
     <tr>
-        <th>Item</th>
-        <div>tasks</div>
+    <h1>Todos</h1>
+    <th>Task number</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Completed</th>
+    <th>Actions</th>
     </tr>
     {% for todo in tasks %}
     <tr>
-        <td>{{todo}}</td>
+        <td>{{ forloop.counter }}</td>
+        <td>{{todo.title}}</td>
+        <td>{{todo.description}}</td>
+        <td>
+            {% if todo.complete == False %}
+                <input type="checkbox" style="pointer-events: none" ></input>
+            {% else %}
+                <input type="checkbox" checked="checked" style="pointer-events: none;"></input>
+            {% endif %}
+
+        </td>
+        <td>
+            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title }}', '{{ todo.description }}', {{ todo.complete|lower }})">Edit</button>
+        </td>
     </tr>
     {% empty %}
         <h3>No items in list</h3>
@@ -19,8 +127,126 @@
 
 </table>
 
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <h2>Edit Task</h2>
+        <form id="editForm">
+            {% csrf_token %}
+            <div>
+                <label for="editTitle">Title</label>
+                <input id="editTitle" name="title" type="text" required maxlength="200" style="width: 100%; padding: 8px; margin-bottom: 10px;" />
+            </div>
+            <div>
+                <label for="editDescription">Description</label>
+                <textarea id="editDescription" name="description" rows="3" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
+            </div>
+            <div>
+                <label>
+                    <input id="editComplete" name="complete" type="checkbox" />
+                    Mark as complete
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-save" onclick="submitUpdate()">Save Changes</button>
+                <button type="button" class="btn-delete" onclick="openDeleteConfirm()">Delete Task</button>
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 
+<!-- Delete confirmation modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeDeleteConfirm()">&times;</span>
+        <h2>Delete task?</h2>
+        <p>Are you sure you want to permanently delete this todo?</p>
+        <div class="modal-buttons">
+            <button type="button" class="btn-delete" onclick="confirmDelete()">Yes, delete</button>
+            <button type="button" class="btn-cancel" onclick="closeDeleteConfirm()">Cancel</button>
+        </div>
+    </div>
+</div>
 
+<script>
+    let currentTaskId = null;
+
+    function openModal(taskId, title, description, complete) {
+        currentTaskId = taskId;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editDescription').value = description;
+        document.getElementById('editComplete').checked = complete;
+        document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').classList.remove('active');
+        closeDeleteConfirm();
+        currentTaskId = null;
+    }
+
+    function submitUpdate() {
+        if (currentTaskId) {
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+            
+            fetch(`/myapp/todo/${currentTaskId}/update/`, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error updating task');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    function openDeleteConfirm() {
+        document.getElementById('deleteConfirmModal').classList.add('active');
+    }
+
+    function closeDeleteConfirm() {
+        document.getElementById('deleteConfirmModal').classList.remove('active');
+    }
+
+    function confirmDelete() {
+        if (currentTaskId) {
+            const form = document.getElementById('editForm');
+            const formData = new FormData(form);
+            
+            fetch(`/myapp/todo/${currentTaskId}/delete/`, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Error deleting task');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteConfirmModal');
+        if (event.target === editModal) {
+            closeModal();
+        }
+        if (event.target === deleteModal) {
+            closeDeleteConfirm();
+        }
+    }
+</script>
 
 
 
