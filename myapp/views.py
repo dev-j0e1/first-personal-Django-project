@@ -4,18 +4,23 @@ from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from django.views.generic.list import ListView
 from .models import Task
+import logging
+logger = logging.getLogger(__name__)
+from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
 
 
-@login_required(login_url="/myapp/login/")
+
+@login_required(login_url=settings.LOGIN_PATH)
 def todo(request):
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
+        status = request.POST.get("status", 1)
 
         if title:
-            Task.create_task(request.user, title, description)
+            Task.create_task(request.user, title, description, status)
             return redirect("todo")
 
     tasks = Task.objects.filter(user=request.user)
@@ -24,7 +29,7 @@ def todo(request):
         "tasks": tasks,
     })
 
-@login_required(login_url="/myapp/login/")
+@login_required(login_url=settings.LOGIN_PATH)
 def update_task(request, task_id):
     try:
         task = Task.objects.get(id=task_id, user=request.user)
@@ -36,9 +41,10 @@ def update_task(request, task_id):
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
         complete = request.POST.get("complete") == "on"
+        status = request.POST.get("status", 1)
 
         if title:
-            task.update_task(title=title, description=description, complete=complete)
+            task.update_task(title=title, description=description, complete=complete, status=status)
             messages.success(request, "Task updated successfully.")
             return redirect("todo")
         else:
@@ -49,7 +55,7 @@ def update_task(request, task_id):
         "active_page": "todo",
     })
 
-@login_required(login_url="/myapp/login/")
+@login_required(login_url=settings.LOGIN_PATH)
 def delete_task(request, task_id):
     try:
         task = Task.objects.get(id=task_id, user=request.user)
@@ -68,6 +74,7 @@ def delete_task(request, task_id):
     })
 
 def home(request):
+    logger.info("Homepage accessed")
     return render(request, "home.html", {"active_page": "home"})
 
 

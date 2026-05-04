@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +22,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$o525a!9cec+jfl@mjaul(*=51p%*9ykw0o=(ao$o9i_+9ue&_'
+# gonna load in the .env variables which is more secure than hard coding the secret into the code I guess..
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG", False)
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+# for logging important stuff like handling errors and other debugging stuff
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
 
 # Application definition
@@ -70,6 +86,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'randomDemo.wsgi.application'
 
+
+LOGIN_PATH = "/myapp/login/"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

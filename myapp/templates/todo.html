@@ -59,6 +59,9 @@
         cursor: pointer;
         font-weight: bold;
     }
+    #editDescription {
+        height: fit-content;
+    }
     .btn-save {
         background-color: #4CAF50;
         color: white;
@@ -100,6 +103,7 @@
     <th>Task number</th>
     <th>Name</th>
     <th>Description</th>
+    <th>Status</th>
     <th>Completed</th>
     <th>Actions</th>
     </tr>
@@ -108,6 +112,16 @@
         <td>{{ forloop.counter }}</td>
         <td>{{todo.title}}</td>
         <td>{{todo.description}}</td>
+        {% if todo.status == 2 %}
+            <td>In Progress...</td>
+        {% elif todo.status == 3 %}
+            <td>Complete</td>
+        {% else %}
+            <td>To Do</td>
+        {% endif %}
+
+
+
         <td>
             {% if todo.complete == False %}
                 <input type="checkbox" style="pointer-events: none" ></input>
@@ -117,7 +131,7 @@
 
         </td>
         <td>
-            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title }}', '{{ todo.description }}', {{ todo.complete|lower }})">Edit</button>
+            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title|escapejs }}', '{{ todo.description|escapejs }}', {{ todo.complete|lower }})">Edit</button>
         </td>
     </tr>
     {% empty %}
