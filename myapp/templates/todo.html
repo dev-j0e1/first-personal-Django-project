@@ -131,7 +131,7 @@
 
         </td>
         <td>
-            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title|escapejs }}', '{{ todo.description|escapejs }}', {{ todo.complete|lower }})">Edit</button>
+            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title|escapejs }}', '{{ todo.description|escapejs }}', {{ todo.complete|lower }}, {{ todo.status }})">Edit</button>
         </td>
     </tr>
     {% empty %}
@@ -162,6 +162,14 @@
                     Mark as complete
                 </label>
             </div>
+            <div>
+                <select name="status" id="statusSelector">
+                    <option value="1">To Do</option>
+                    <option value="2">In Progress...</option>
+                    <option value="3">Complete.</option>
+                </select>
+
+            </div>
             <div class="modal-buttons">
                 <button type="button" class="btn-save" onclick="submitUpdate()">Save Changes</button>
                 <button type="button" class="btn-delete" onclick="openDeleteConfirm()">Delete Task</button>
@@ -187,11 +195,18 @@
 <script>
     let currentTaskId = null;
 
-    function openModal(taskId, title, description, complete) {
+    function openModal(taskId, title, description, complete, status) {
         currentTaskId = taskId;
         document.getElementById('editTitle').value = title;
         document.getElementById('editDescription').value = description;
         document.getElementById('editComplete').checked = complete;
+
+        let options = [...document.querySelector("#statusSelector").querySelectorAll("option")]
+        options.forEach(e=>{
+            if (parseInt(e.value) === parseInt(status)) {
+                e.selected = true
+            }
+        })
         document.getElementById('editModal').classList.add('active');
     }
 
