@@ -41,11 +41,10 @@ def update_task(request, task_id):
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
         description = request.POST.get("description", "").strip()
-        complete = request.POST.get("complete") == "on"
         status = request.POST.get("status", 1)
 
         if title:
-            task.update_task(title=title, description=description, complete=complete, status=status)
+            task.update_task(title=title, description=description, status=status)
             messages.add_message(request, messages.INFO, "Task has been updated successfully")
             messages.success(request, title + " task updated successfully.")
             return redirect("todo")

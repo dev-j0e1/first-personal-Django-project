@@ -10,7 +10,6 @@ class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="tasks")
     title = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    complete = models.BooleanField(default=False)
     create = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=1)
 
@@ -21,13 +20,11 @@ class Task(models.Model):
         ordering = ['-create']
 
 
-    def update_task(self, title=None, description=None, complete=None, status=None):
+    def update_task(self, title=None, description=None, status=None):
         if title is not None:
             self.title = title
         if description is not None:
             self.description = description
-        if complete is not None:
-            self.complete = complete
         if status is not None:
             self.status = status
         self.save()
@@ -43,6 +40,5 @@ class Task(models.Model):
             user = user,
             title = title,
             description = description or "",
-            complete = False,
             status = status or 1,
         )

@@ -1,93 +1,561 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
 <style>
+    /* Modern Todo App Styles */
+    .todo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-    th {
+    .todo-header {
         text-align: center;
+        margin-bottom: 40px;
     }
-    td {
+
+    .todo-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 10px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .todo-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    /* Add Todo Form */
+    .add-todo-form {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
         background: white;
-        border: 1px solid black;
-        padding: 10px;
-        text-align: center;
+        box-sizing: border-box;
     }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(59, 123, 193, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-select {
+        cursor: pointer;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, var(--secondary-blue) 0%, var(--accent-blue) 100%);
+        color: white;
+        border: none;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 16px rgba(44, 90, 160, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-add:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(44, 90, 160, 0.4);
+    }
+
+    .btn-add:active {
+        transform: translateY(0);
+    }
+
+    /* Todo List View */
+    .todos-list {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.8);
+        overflow: hidden;
+    }
+
+    .todo-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid #f1f3f4;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease, padding 0.3s ease;
+        position: relative;
+        border-left: 6px solid transparent;
+        background: white;
+        will-change: background-color, box-shadow, padding;
+        cursor: pointer;
+    }
+
+    .todo-item:hover {
+        background: #f7f8fa;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        padding: 20px 24px;
+    }
+
+    .todo-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Status-specific background styling */
+    .todo-status-1 {
+        background: linear-gradient(90deg, rgba(108, 117, 125, 0.02) 0%, rgba(108, 117, 125, 0.005) 100%);
+        border-left-color: #6c757d;
+    }
+
+    .todo-status-2 {
+        background: linear-gradient(90deg, rgba(255, 193, 7, 0.03) 0%, rgba(255, 193, 7, 0.01) 100%);
+        border-left-color: #ffc107;
+    }
+
+    .todo-status-3 {
+        background: linear-gradient(90deg, rgba(40, 167, 69, 0.03) 0%, rgba(40, 167, 69, 0.01) 100%);
+        border-left-color: #28a745;
+        opacity: 0.9;
+    }
+
+    .todo-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        border-radius: 0 3px 3px 0;
+    }
+
+    .todo-status-todo::before {
+        background: linear-gradient(180deg, #6c757d, #495057);
+    }
+
+    .todo-status-progress::before {
+        background: linear-gradient(180deg, #ffc107, #fd7e14);
+    }
+
+    .todo-status-complete::before {
+        background: linear-gradient(180deg, #28a745, #20c997);
+    }
+
+    .todo-content {
+        flex: 1;
+        margin-right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .todo-header {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .todo-title {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0;
+        line-height: 1.4;
+        width: 100%;
+        padding: 0 40px; /* Add padding to account for action buttons */
+    }
+
+    .todo-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease, margin-bottom 0.3s ease;
+        width: 100%;
+    }
+
+    .todo-item:hover .todo-description {
+        opacity: 1;
+        max-height: 200px;
+        margin-bottom: 12px;
+    }
+
+    .todo-item:hover .todo-description {
+        opacity: 1;
+        max-height: 60px;
+        margin-bottom: 8px;
+    }
+    #detailsContainer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        flex-shrink: 0;
+    }
+    .todo-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 0;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .todo-item:hover .todo-meta {
+        opacity: 1;
+        margin-top: 12px;
+    }
+
+    .todo-status {
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border: 1px solid;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        transition: box-shadow 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .todo-status::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .status-todo::before {
+        background: #6c757d;
+    }
+
+    .status-progress::before {
+        background: #ffc107;
+    }
+
+    .status-complete::before {
+        background: #28a745;
+    }
+
+    .todo-status:hover {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    .status-todo {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #495057;
+        border-color: #dee2e6;
+    }
+
+    .status-progress {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        color: #856404;
+        border-color: #ffc107;
+    }
+
+    .status-complete {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border-color: #28a745;
+    }
+
+    .todo-number {
+        font-size: 0.8rem;
+        color: #adb5bd;
+        font-weight: 600;
+        background: rgba(173, 181, 189, 0.1);
+        padding: 2px 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(173, 181, 189, 0.2);
+        flex-shrink: 0;
+    }
+
+    .todo-actions {
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transform: scale(0.9);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .todo-item:hover .todo-actions {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .btn-edit,
+    .btn-delete {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-edit {
+        background: var(--accent-blue);
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: var(--secondary-blue);
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+    }
+
+    /* Modal Styles */
     .modal {
         display: none;
         position: fixed;
-        z-index: 1;
+        z-index: 1000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        animation: modalFadeIn 0.3s ease-out;
     }
+
     .modal.active {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
     .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 40px 20px;
-        border: 1px solid #888;
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
         width: 90%;
-        max-width: 700px;
-        border-radius: 8px;
+        max-width: 500px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        position: relative;
     }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
     .modal-close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #6c757d;
         cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
     .modal-close:hover {
-        color: black;
+        background: #f8f9fa;
+        color: #495057;
     }
+
+    .modal h2 {
+        color: var(--primary-blue);
+        margin-bottom: 24px;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
     .modal-buttons {
         display: flex;
-        gap: 10px;
-        margin-top: 15px;
+        gap: 12px;
+        margin-top: 24px;
+        justify-content: flex-end;
     }
+
     .modal-buttons button {
-        flex: 1;
-        padding: 10px;
+        padding: 12px 24px;
         border: none;
-        border-radius: 4px;
+        border-radius: 10px;
+        font-weight: 600;
         cursor: pointer;
-        font-weight: bold;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        font-size: 0.95rem;
     }
-    #editDescription {
-        height: auto;
-        min-height: 100px;
-        resize: none;
-        overflow: hidden;
-    }
+
     .btn-save {
-        background-color: #4CAF50;
+        background: #28a745;
         color: white;
     }
+
+    .btn-save:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+
     .btn-delete {
-        background-color: #f44336;
+        background: #dc3545;
         color: white;
     }
+
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
     .btn-cancel {
-        background-color: #888;
+        background: #6c757d;
         color: white;
     }
-    .edit-btn {
-        background-color: #2196F3;
-        color: white;
-        padding: 5px 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+
+    .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
     }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .todo-container {
+            padding: 15px;
+        }
+
+        .todo-header h1 {
+            font-size: 2rem;
+        }
+
+        .add-todo-form {
+            padding: 20px;
+        }
+
+        .modal-content {
+            padding: 30px 20px;
+            margin: 20px;
+        }
+
+        .modal-buttons {
+            flex-direction: column;
+        }
+
+        .modal-buttons button {
+            width: 100%;
+        }
+
+        .todo-item {
+            padding: 16px 20px;
+        }
+
+        .todo-actions {
+            flex-direction: column;
+            gap: 6px;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .todo-title {
+            font-size: 1rem;
+            padding: 0 35px; /* Adjust for mobile action buttons */
+        }
+    }
+
+    /* Animation for fade and shrink */
     .alert-fade-shrink {
         animation: fadeAndShrink 0.6s ease-in-out forwards;
     }
+
     @keyframes fadeAndShrink {
         from {
             opacity: 1;
@@ -100,70 +568,129 @@
     }
 </style>
 
-<form method="post" action="{% url 'todo' %}" style="margin-bottom: 1.5rem;">
-    {% csrf_token %}
-    <div>
-        <label for="title">Title</label>
-        <input id="title" placeholder="What do I need to do?..." name="title" type="text" required maxlength="200" style="width: 100%;" />
+<div class="todo-container">
+    <div class="todo-header">
     </div>
-    <div style="margin-top: 0.5rem;">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" placeholder="Details about my Todo..." rows="3" style="width: 100%;"></textarea>
+
+    <!-- Add Todo Form -->
+    <div class="add-todo-form">
+        <form method="post" action="{% url 'todo' %}">
+        <h1 style="text-align: center;">Create a Todo</h1>
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="title">Title</label>
+                <input class="form-input" id="title" placeholder="What do I need to do?..." name="title" type="text" required maxlength="200" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-textarea" id="description" name="description" placeholder="Add some details about this task..." rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status" required>
+                    <option value="1" selected>To Do</option>
+                    <option value="2">In Progress...</option>
+                    <option value="3">Complete ✅</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-add">
+                <span>+ Add Todo</span>  
+            </button>
+        </form>
     </div>
-    <div>
-        <label>Status</label>
-        <select name="status" required>
-            <option value="1" selected>To Do</option>
-            <option value="2">In Progress...</option>
-            <option value="3">Complete.</option>
-        </select>
+
+    <!-- Todo List -->
+     <h1 style="text-align: center">My Todo list</h1>
+    <div class="todos-list">
+        {% for todo in tasks %}
+        <div class="todo-item todo-status-{{ todo.status }}">
+            <div class="todo-content">
+                <div class="todo-header">
+                    <h3 class="todo-title">{{ todo.title }}</h3>
+                </div>
+
+                <div id="detailsContainer"> 
+                    {% if todo.description %}
+                    <p class="todo-description">{{ todo.description }}</p>
+                    {% endif %}
+
+                    <span class="todo-status status-{{ todo.status|lower }}">
+                        {% if todo.status == 1 %}To Do{% elif todo.status == 2 %}In Progress...{% else %}Complete ✅{% endif %}
+                    </span>
+                    <span class="todo-number">#{{ forloop.counter }}</span>
+                </div>
+            </div>
+            <div class="todo-actions">
+                <button class="btn-edit" onclick="openModal({{ todo.id }}, '{{ todo.title|escapejs }}', '{{ todo.description|escapejs }}', {{ todo.status }})">
+                    Edit
+                </button>
+                <button class="btn-delete" onclick="openDeleteConfirm({{ todo.id }})">
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="todo-item">
+            <div class="todo-content">
+                <div class="empty-state">
+                    <h3>No tasks yet</h3>
+                    <p>Add your first task above to get started!</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    <button type="submit" style="border-radius: 25px;">Add Todo</button>
-</form>
+</div>
 
-<table>
-    <tr>
-    <h1>Todos</h1>
-    <th>Task number</th>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Status</th>
-    <th>Completed</th>
-    <th>Actions</th>
-    </tr>
-    {% for todo in tasks %}
-    <tr>
-        <td>{{ forloop.counter }}</td>
-        <td>{{todo.title}}</td>
-        <td>{{todo.description}}</td>
-        {% if todo.status == 2 %}
-            <td>In Progress...</td>
-        {% elif todo.status == 3 %}
-            <td>Complete</td>
-        {% else %}
-            <td>To Do</td>
-        {% endif %}
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <h2>Edit Task</h2>
+        <form id="editForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="editTitle">Task Title</label>
+                <input class="form-input" id="editTitle" name="title" type="text" required maxlength="200" />
+            </div>
 
+            <div class="form-group">
+                <label class="form-label" for="editDescription">Description</label>
+                <textarea class="form-textarea" id="editDescription" name="description"></textarea>
+            </div>
 
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status" id="statusSelector">
+                    <option value="1">To Do</option>
+                    <option value="2">In Progress...</option>
+                    <option value="3">Complete ✅</option>
+                </select>
+            </div>
 
-        <td>
-            {% if todo.complete == False %}
-                <input type="checkbox" style="pointer-events: none" ></input>
-            {% else %}
-                <input type="checkbox" checked="checked" style="pointer-events: none;"></input>
-            {% endif %}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn-save" onclick="submitUpdate()">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        </td>
-        <td>
-            <button class="edit-btn" onclick="openModal({{ todo.id }}, '{{ todo.title|escapejs }}', '{{ todo.description|escapejs }}', {{ todo.complete|lower }}, {{ todo.status }})">Edit</button>
-        </td>
-    </tr>
-    {% empty %}
-        <h3>No items in list</h3>
-    {% endfor %}
-
-
-</table>
+<!-- Delete confirmation modal -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeDeleteConfirm()">&times;</button>
+        <h2>Delete Task?</h2>
+        <p>Are you sure you want to permanently delete this task? This action cannot be undone.</p>
+        <div class="modal-buttons">
+            <button type="button" class="btn-cancel" onclick="closeDeleteConfirm()">Cancel</button>
+            <button type="button" class="btn-delete" onclick="confirmDelete()">Delete Task</button>
+        </div>
+    </div>
+</div>
 
 <!-- Edit Modal -->
 <div id="editModal" class="modal">
@@ -181,16 +708,10 @@
                 <textarea id="editDescription" name="description" rows="3" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
             </div>
             <div>
-                <label>
-                    <input id="editComplete" name="complete" type="checkbox" />
-                    Mark as complete
-                </label>
-            </div>
-            <div>
                 <select name="status" id="statusSelector">
                     <option value="1">To Do</option>
                     <option value="2">In Progress...</option>
-                    <option value="3">Complete.</option>
+                    <option value="3">Complete ✅</option>
                 </select>
 
             </div>
@@ -223,7 +744,7 @@
     function showMessageFromUrl() {
         const params = new URLSearchParams(window.location.search);
         const message = params.get('message');
-        
+
         if (message) {
             let messageText = '';
             if (message === 'updated') {
@@ -231,7 +752,7 @@
             } else if (message === 'deleted') {
                 messageText = 'Task deleted successfully.';
             }
-            
+
             if (messageText) {
                 // Create a message element that matches Django's message style
                 const messageDiv = document.createElement('div');
@@ -244,13 +765,13 @@
                         </button>
                     </div>
                 `;
-                
+
                 // Insert before the form
-                const form = document.querySelector('form');
+                const form = document.querySelector('.add-todo-form');
                 if (form) {
                     form.parentNode.insertBefore(messageDiv, form);
                 }
-                
+
                 // Fade out and shrink after 3.5 seconds
                 const alertElement = messageDiv.querySelector('.alert');
                 setTimeout(() => {
@@ -260,7 +781,7 @@
                         messageDiv.remove();
                     }, 600);
                 }, 3500);
-                
+
                 // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
@@ -269,35 +790,40 @@
 
     // Call on page load
     document.addEventListener('DOMContentLoaded', showMessageFromUrl);
-    
+
     // Add auto-resize listener to description textarea
     document.addEventListener('DOMContentLoaded', () => {
         const textarea = document.getElementById('editDescription');
-        textarea.addEventListener('input', autoResizeTextarea);
+        if (textarea) {
+            textarea.addEventListener('input', autoResizeTextarea);
+        }
     });
 
-    function openModal(taskId, title, description, complete, status) {
+    function openModal(taskId, title, description, status) {
         currentTaskId = taskId;
         document.getElementById('editTitle').value = title;
         document.getElementById('editDescription').value = description;
-        document.getElementById('editComplete').checked = complete;
 
-        let options = [...document.querySelector("#statusSelector").querySelectorAll("option")]
-        options.forEach(e=>{
-            if (parseInt(e.value) === parseInt(status)) {
-                e.selected = true
+        const statusSelector = document.getElementById('statusSelector');
+        const options = statusSelector.querySelectorAll('option');
+        options.forEach(option => {
+            if (parseInt(option.value) === parseInt(status)) {
+                option.selected = true;
             }
-        })
+        });
+
         document.getElementById('editModal').classList.add('active');
-        
+
         // Auto-resize the description textarea
         autoResizeTextarea();
     }
 
     function autoResizeTextarea() {
         const textarea = document.getElementById('editDescription');
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
+        if (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
     }
 
     function closeModal() {
@@ -310,7 +836,7 @@
         if (currentTaskId) {
             const form = document.getElementById('editForm');
             const formData = new FormData(form);
-            
+
             fetch(`/myapp/todo/${currentTaskId}/update/`, {
                 method: 'POST',
                 body: formData,
@@ -326,7 +852,8 @@
         }
     }
 
-    function openDeleteConfirm() {
+    function openDeleteConfirm(taskId) {
+        currentTaskId = taskId;
         document.getElementById('deleteConfirmModal').classList.add('active');
     }
 
@@ -338,7 +865,7 @@
         if (currentTaskId) {
             const form = document.getElementById('editForm');
             const formData = new FormData(form);
-            
+
             fetch(`/myapp/todo/${currentTaskId}/delete/`, {
                 method: 'POST',
                 body: formData,
