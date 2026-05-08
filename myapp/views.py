@@ -21,6 +21,7 @@ def todo(request):
 
         if title:
             Task.create_task(request.user, title, description, status)
+            messages.add_message(request, messages.INFO, title +  " task created successfully! :)")
             return redirect("todo")
 
     tasks = Task.objects.filter(user=request.user)
@@ -45,7 +46,8 @@ def update_task(request, task_id):
 
         if title:
             task.update_task(title=title, description=description, complete=complete, status=status)
-            messages.success(request, "Task updated successfully.")
+            messages.add_message(request, messages.INFO, "Task has been updated successfully")
+            messages.success(request, title + " task updated successfully.")
             return redirect("todo")
         else:
             messages.error(request, "Title cannot be empty.")
@@ -66,6 +68,7 @@ def delete_task(request, task_id):
     if request.method == "POST":
         task.delete_task()
         messages.success(request, "Task deleted successfully.")
+        messages.add_message(request, messages.INFO, "Task has been deleted successfully!")
         return redirect("todo")
 
     return render(request, "confirm_delete.html", {

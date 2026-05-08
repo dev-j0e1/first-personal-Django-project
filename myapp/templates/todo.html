@@ -30,10 +30,10 @@
     .modal-content {
         background-color: #fefefe;
         margin: 5% auto;
-        padding: 20px;
+        padding: 40px 20px;
         border: 1px solid #888;
         width: 90%;
-        max-width: 500px;
+        max-width: 700px;
         border-radius: 8px;
     }
     .modal-close {
@@ -60,7 +60,10 @@
         font-weight: bold;
     }
     #editDescription {
-        height: fit-content;
+        height: auto;
+        min-height: 100px;
+        resize: none;
+        overflow: hidden;
     }
     .btn-save {
         background-color: #4CAF50;
@@ -82,6 +85,19 @@
         border-radius: 4px;
         cursor: pointer;
     }
+    .alert-fade-shrink {
+        animation: fadeAndShrink 0.6s ease-in-out forwards;
+    }
+    @keyframes fadeAndShrink {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
 </style>
 
 <form method="post" action="{% url 'todo' %}" style="margin-bottom: 1.5rem;">
@@ -93,6 +109,14 @@
     <div style="margin-top: 0.5rem;">
         <label for="description">Description</label>
         <textarea id="description" name="description" placeholder="Details about my Todo..." rows="3" style="width: 100%;"></textarea>
+    </div>
+    <div>
+        <label>Status</label>
+        <select name="status" required>
+            <option value="1" selected>To Do</option>
+            <option value="2">In Progress...</option>
+            <option value="3">Complete.</option>
+        </select>
     </div>
     <button type="submit" style="border-radius: 25px;">Add Todo</button>
 </form>
@@ -195,6 +219,63 @@
 <script>
     let currentTaskId = null;
 
+    // Check for message parameter in URL and display it
+    function showMessageFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const message = params.get('message');
+        
+        if (message) {
+            let messageText = '';
+            if (message === 'updated') {
+                messageText = 'Task has been updated successfully';
+            } else if (message === 'deleted') {
+                messageText = 'Task deleted successfully.';
+            }
+            
+            if (messageText) {
+                // Create a message element that matches Django's message style
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'messages';
+                messageDiv.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        ${messageText}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                `;
+                
+                // Insert before the form
+                const form = document.querySelector('form');
+                if (form) {
+                    form.parentNode.insertBefore(messageDiv, form);
+                }
+                
+                // Fade out and shrink after 3.5 seconds
+                const alertElement = messageDiv.querySelector('.alert');
+                setTimeout(() => {
+                    alertElement.classList.add('alert-fade-shrink');
+                    // Remove the element after animation completes (0.6s)
+                    setTimeout(() => {
+                        messageDiv.remove();
+                    }, 600);
+                }, 3500);
+                
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+    }
+
+    // Call on page load
+    document.addEventListener('DOMContentLoaded', showMessageFromUrl);
+    
+    // Add auto-resize listener to description textarea
+    document.addEventListener('DOMContentLoaded', () => {
+        const textarea = document.getElementById('editDescription');
+        textarea.addEventListener('input', autoResizeTextarea);
+    });
+
     function openModal(taskId, title, description, complete, status) {
         currentTaskId = taskId;
         document.getElementById('editTitle').value = title;
@@ -208,6 +289,15 @@
             }
         })
         document.getElementById('editModal').classList.add('active');
+        
+        // Auto-resize the description textarea
+        autoResizeTextarea();
+    }
+
+    function autoResizeTextarea() {
+        const textarea = document.getElementById('editDescription');
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
     }
 
     function closeModal() {
@@ -227,7 +317,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    location.reload();
+                    window.location.href = '/myapp/todo/?message=updated';
                 } else {
                     alert('Error updating task');
                 }
@@ -255,7 +345,7 @@
             })
             .then(response => {
                 if (response.ok) {
-                    location.reload();
+                    window.location.href = '/myapp/todo/?message=deleted';
                 } else {
                     alert('Error deleting task');
                 }
