@@ -675,10 +675,15 @@
 
     <!-- Status Filter -->
     <div class="status-filter">
-        <a href="{% url 'todo' %}" class="filter-btn {% if not status_filter %}active{% endif %}">All Tasks</a>
-        <a href="{% url 'todo' %}?status=2" class="filter-btn {% if status_filter == '2' %}active{% endif %}">In Progress</a>
-        <a href="{% url 'todo' %}?status=1" class="filter-btn {% if status_filter == '1' %}active{% endif %}">To Do</a>
-        <a href="{% url 'todo' %}?status=3" class="filter-btn {% if status_filter == '3' %}active{% endif %}">Complete</a>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <a href="{% url 'todo' %}" class="filter-btn {% if not status_filter %}active{% endif %}" style="width: 100px;">All Tasks</a>
+            <div style="display: flex; justify-content: space-evenly;">
+                <a href="{% url 'todo' %}?status=1" class="filter-btn {% if status_filter == '1' %}active{% endif %}">  To Do  </a>
+                <a href="{% url 'todo' %}?status=2" class="filter-btn {% if status_filter == '2' %}active{% endif %}">In Progress</a>
+                <a href="{% url 'todo' %}?status=3" class="filter-btn {% if status_filter == '3' %}active{% endif %}">Complete</a>
+            </div>
+
+        </div>
     </div>
 
     <div class="todos-list">
