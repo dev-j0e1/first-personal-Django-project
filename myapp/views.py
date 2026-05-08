@@ -9,25 +9,47 @@ logger = logging.getLogger(__name__)
 from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
+from .forms import TaskForm, TaskUpdateForm
 
 
 
 @login_required(login_url=settings.LOGIN_PATH)
 def todo(request):
     if request.method == "POST":
-        title = request.POST.get("title", "").strip()
-        description = request.POST.get("description", "").strip()
-        status = request.POST.get("status", 1)
-
-        if title:
-            Task.create_task(request.user, title, description, status)
-            messages.add_message(request, messages.INFO, title +  " task created successfully! :)")
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.user = request.user
+            task.save()
+            messages.success(request, f'"{task.title}" task created successfully!')
             return redirect("todo")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = TaskForm()
 
+    # Add status filtering (stretch goal)
+    status_filter = request.GET.get('status')
     tasks = Task.objects.filter(user=request.user)
+
+    if status_filter and status_filter.isdigit():
+        tasks = tasks.filter(status=int(status_filter))
+
+    # Order tasks with custom ordering for status
+    from django.db.models import Case, When
+    tasks = tasks.annotate(
+        custom_order=Case(
+            When(status=2, then=0),  # In Progress first
+            When(status=1, then=1),  # To Do second
+            When(status=3, then=2),  # Complete last
+        )
+    ).order_by('custom_order', '-create')
+
     return render(request, "todo.html", {
         "active_page": "todo",
         "tasks": tasks,
+        "form": form,
+        "status_filter": status_filter,
     })
 
 @login_required(login_url=settings.LOGIN_PATH)
@@ -39,20 +61,23 @@ def update_task(request, task_id):
         return redirect("todo")
 
     if request.method == "POST":
-        title = request.POST.get("title", "").strip()
-        description = request.POST.get("description", "").strip()
-        status = request.POST.get("status", 1)
+        form = TaskUpdateForm(request.POST, instance=task)
+        if form.is_valid():
+            updated_task = form.save()
+            messages.success(request, f'"{updated_task.title}" task updated successfully!')
 
-        if title:
-            task.update_task(title=title, description=description, status=status)
-            messages.add_message(request, messages.INFO, "Task has been updated successfully")
-            messages.success(request, title + " task updated successfully.")
+            # Check if this is an AJAX request
+            if request.headers.get('Content-Type') == 'multipart/form-data' or request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return redirect("todo")
             return redirect("todo")
         else:
-            messages.error(request, "Title cannot be empty.")
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = TaskUpdateForm(instance=task)
 
     return render(request, "edit_task.html", {
         "task": task,
+        "form": form,
         "active_page": "todo",
     })
 

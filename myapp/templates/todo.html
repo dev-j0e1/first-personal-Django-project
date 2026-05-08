@@ -105,6 +105,55 @@
         transform: translateY(0);
     }
 
+    /* Form Error Styles */
+    .field-errors {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #f5c6cb;
+        margin-bottom: 20px;
+    }
+
+    /* Status Filter */
+    .status-filter {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        color: #6c757d;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .filter-btn:hover {
+        background: #e9ecef;
+        color: #495057;
+        transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+    }
+
     /* Todo List View */
     .todos-list {
         background: white;
@@ -112,6 +161,7 @@
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         border: 1px solid rgba(255,255,255,0.8);
         overflow: hidden;
+        margin-bottom: 100px;
     }
 
     .todo-item {
@@ -136,6 +186,7 @@
     .todo-item:last-child {
         border-bottom: none;
     }
+
 
     /* Status-specific background styling */
     .todo-status-1 {
@@ -577,23 +628,40 @@
         <form method="post" action="{% url 'todo' %}">
         <h1 style="text-align: center;">Create a Todo</h1>
             {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
             <div class="form-group">
-                <label class="form-label" for="title">Title</label>
-                <input class="form-input" id="title" placeholder="What do I need to do?..." name="title" type="text" required maxlength="200" />
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="field-errors">
+                        {{ form.title.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="description">Description</label>
-                <textarea class="form-textarea" id="description" name="description" placeholder="Add some details about this task..." rows="3"></textarea>
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="field-errors">
+                        {{ form.description.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-group">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status" required>
-                    <option value="1" selected>To Do</option>
-                    <option value="2">In Progress...</option>
-                    <option value="3">Complete ✅</option>
-                </select>
+                {{ form.status.label_tag }}
+                {{ form.status }}
+                {% if form.status.errors %}
+                    <div class="field-errors">
+                        {{ form.status.errors }}
+                    </div>
+                {% endif %}
             </div>
 
             <button type="submit" class="btn-add">
@@ -604,6 +672,15 @@
 
     <!-- Todo List -->
      <h1 style="text-align: center">My Todo list</h1>
+
+    <!-- Status Filter -->
+    <div class="status-filter">
+        <a href="{% url 'todo' %}" class="filter-btn {% if not status_filter %}active{% endif %}">All Tasks</a>
+        <a href="{% url 'todo' %}?status=2" class="filter-btn {% if status_filter == '2' %}active{% endif %}">In Progress</a>
+        <a href="{% url 'todo' %}?status=1" class="filter-btn {% if status_filter == '1' %}active{% endif %}">To Do</a>
+        <a href="{% url 'todo' %}?status=3" class="filter-btn {% if status_filter == '3' %}active{% endif %}">Complete</a>
+    </div>
+
     <div class="todos-list">
         {% for todo in tasks %}
         <div class="todo-item todo-status-{{ todo.status }}">
@@ -689,38 +766,6 @@
             <button type="button" class="btn-cancel" onclick="closeDeleteConfirm()">Cancel</button>
             <button type="button" class="btn-delete" onclick="confirmDelete()">Delete Task</button>
         </div>
-    </div>
-</div>
-
-<!-- Edit Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <h2>Edit Task</h2>
-        <form id="editForm">
-            {% csrf_token %}
-            <div>
-                <label for="editTitle">Title</label>
-                <input id="editTitle" name="title" type="text" required maxlength="200" style="width: 100%; padding: 8px; margin-bottom: 10px;" />
-            </div>
-            <div>
-                <label for="editDescription">Description</label>
-                <textarea id="editDescription" name="description" rows="3" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
-            </div>
-            <div>
-                <select name="status" id="statusSelector">
-                    <option value="1">To Do</option>
-                    <option value="2">In Progress...</option>
-                    <option value="3">Complete ✅</option>
-                </select>
-
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn-save" onclick="submitUpdate()">Save Changes</button>
-                <button type="button" class="btn-delete" onclick="openDeleteConfirm()">Delete Task</button>
-                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
-            </div>
-        </form>
     </div>
 </div>
 
